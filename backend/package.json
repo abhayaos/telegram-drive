@@ -1,0 +1,17 @@
+{
+  "name": "telegram-drive-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "gramjs": "^0.8.4",
+    "input": "^1.0.1",
+    "multer": "^1.4.5-lts.1",
+    "string-similarity": "^4.0.4"
+  }
+}
