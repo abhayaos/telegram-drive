@@ -2,74 +2,43 @@ import axios from 'axios';
 
 const API = axios.create({ baseURL: 'http://localhost:3001/api' });
 
-const userId = () => localStorage.getItem('tg_user_id') || '';
+let token = localStorage.getItem('tg_token') || '';
 
 API.interceptors.request.use((config) => {
-  const uid = userId();
-  if (uid) config.headers['x-user-id'] = uid;
+  if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
-export function setUserId(id) {
-  localStorage.setItem('tg_user_id', id);
+export function setToken(t) {
+  token = t;
+  localStorage.setItem('tg_token', t);
 }
 
-export function clearUserId() {
-  localStorage.removeItem('tg_user_id');
+export function clearToken() {
+  token = '';
+  localStorage.removeItem('tg_token');
 }
 
-export function getUserId() {
-  return userId();
-}
-
-export async function sendCode(phoneNumber) {
-  const uid = Date.now().toString();
-  setUserId(uid);
-  const { data } = await API.post('/auth/send-code', { phoneNumber, userId: uid });
+export async function login(password) {
+  const { data } = await API.post('/auth/login', { password });
+  if (data.success) setToken(data.token);
   return data;
 }
 
-export async function verifyCode(code) {
-  const { data } = await API.post('/auth/verify-code', { userId: userId(), code });
+export async function checkStatus() {
+  const { data } = await API.get('/auth/status');
   return data;
 }
 
-export async function verifyPassword(password) {
-  const { data } = await API.post('/auth/verify-password', { userId: userId(), password });
-  return data;
-}
-
-export async function checkAuth() {
-  const uid = userId();
-  if (!uid) return { authorized: false };
-  try {
-    const { data } = await API.get('/auth/status');
-    return data;
-  } catch {
-    return { authorized: false };
-  }
-}
-
-export async function logout() {
-  await API.post('/auth/logout', { userId: userId() });
-  clearUserId();
-}
-
-export async function fetchFiles(folder = '/') {
-  const { data } = await API.get('/files', { params: { folder } });
+export async function fetchFiles() {
+  const { data } = await API.get('/files');
   return data.files;
 }
 
-export async function uploadFile(file, folder = '/') {
+export async function uploadFile(file) {
   const form = new FormData();
   form.append('file', file);
-  form.append('folder', folder);
   const { data } = await API.post('/files/upload', form);
-  return data;
-}
-
-export async function downloadFile(id) {
-  const { data } = await API.get(`/files/download/${id}`, { responseType: 'blob' });
   return data;
 }
 
@@ -80,4 +49,8 @@ export async function deleteFile(id) {
 
 export function getDownloadUrl(id) {
   return `http://localhost:3001/api/files/download/${id}`;
+}
+
+export function getPreviewUrl(id) {
+  return `http://localhost:3001/api/files/preview/${id}`;
 }
