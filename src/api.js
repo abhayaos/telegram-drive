@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API = axios.create({ baseURL: 'http://localhost:3001/api' });
+const API = axios.create({ baseURL: 'https://telegram-drive-backend.onrender.com/api' });
 
 let token = localStorage.getItem('tg_token') || '';
 
